@@ -27,9 +27,6 @@ COPY Engines/pikafish.nnue /app/Engines/pikafish.nnue
 # 1. Kiểm tra loại file và kiến trúc
 RUN file /app/Engines/pikafish
 
-# 2. Kiểm tra các thư viện phụ thuộc (quan trọng nhất)
-RUN ldd /app/Engines/pikafish || true
-
 # 3. Thử chạy lệnh 'uci' và xem output
 RUN echo "uci" | /app/Engines/pikafish || echo "ERROR: Engine failed to run"
 
