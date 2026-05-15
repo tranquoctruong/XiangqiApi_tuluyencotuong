@@ -10,12 +10,12 @@ RUN dotnet publish -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# ✅ Cài đặt các công cụ cần thiết để debug
+# ✅ Cài tất cả thư viện cần thiết cho Pikafish
 RUN apt-get update && apt-get install -y \
-    file \
-    binutils \
-    libc6 \
+    libatomic1 \
     libstdc++6 \
+    libgcc-s1 \
+    libc6 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /app/Engines
@@ -24,18 +24,10 @@ RUN mkdir -p /app/Engines
 COPY Engines/pikafish /app/Engines/pikafish
 COPY Engines/pikafish.nnue /app/Engines/pikafish.nnue
 
-# Set quyền thực thi
 RUN chmod +x /app/Engines/pikafish
 
-# --- KIỂM TRA ---
-# 1. Kiểm tra loại file (sau khi đã cài file)
-RUN file /app/Engines/pikafish
-
-# 2. Kiểm tra thư viện phụ thuộc
-RUN ldd /app/Engines/pikafish 2>&1 || echo "ldd check done"
-
-# 3. Thử chạy UCI (cách đơn giản hơn)
-RUN echo "uci" | /app/Engines/pikafish 2>&1 | head -n 5 || echo "Engine execution failed with exit code: $?"
+# Test engine
+RUN echo "uci" | /app/Engines/pikafish 2>&1 | head -5
 
 COPY --from=build /app/publish .
 
