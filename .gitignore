@@ -1,0 +1,42 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.lock.json
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+
+# Visual Studio
+.vs/
+.vscode/
+*.swp
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Environment
+.env
+.env.local
+appsettings.Development.json
+appsettings.Production.json
+
+# Engines (quá lớn)
+Engines/*.exe
+Engines/*.dll
+Engines/pikafish*
+
+# Logs
+*.log
+logs/
+
+# Publish
+publish/
