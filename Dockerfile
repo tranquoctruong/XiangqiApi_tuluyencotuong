@@ -1,25 +1,25 @@
-# 1. Giai đoạn build: Dùng SDK để biên dịch code
+# Giai đoạn build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Copy file .csproj và restore dependencies (tận dụng cache của Docker)
-COPY *.csproj ./
+# Copy csproj và restore dependencies
+COPY *.csproj .
 RUN dotnet restore
 
-# Copy toàn bộ source code và build
-COPY . ./
-RUN dotnet publish -c Release -o out
+# Copy toàn bộ source và build
+COPY . .
+RUN dotnet publish -c Release -o /app/publish
 
-# 2. Giai đoạn runtime: Chỉ chạy, không cần SDK (ảnh nhẹ hơn)
+# Giai đoạn runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Copy kết quả build từ giai đoạn trên sang
-COPY --from=build /app/out .
+# Copy kết quả build từ giai đoạn trên
+COPY --from=build /app/publish .
 
-# Quan trọng: Khai báo cổng mà API lắng nghe (Render yêu cầu cổng 8080) [citation:2]
+# Expose cổng (Render yêu cầu cổng 8080)
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
-# Khởi động API
-ENTRYPOINT ["dotnet", "XiangqiApi.dll"] # Thay YourApiName bằng tên file .dll của bạn
+# Chạy app - DÙNG CÚ PHÁP ĐÚNG
+ENTRYPOINT ["dotnet", "XiangqiApi.dll"]
