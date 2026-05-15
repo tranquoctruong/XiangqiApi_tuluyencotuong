@@ -10,35 +10,24 @@ RUN dotnet publish -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Cài đặt thêm dependencies
+# Cài đặt các thư viện cần thiết cho engine (nếu có)
 RUN apt-get update && apt-get install -y \
-    wget \
-    unzip \
     libgomp1 \
-    libc6 \
-    libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
 # Tạo thư mục Engines
 RUN mkdir -p /app/Engines
 
-# Tải bản SSE41 (tương thích nhất)
-RUN wget -O /tmp/pikafish.zip https://github.com/official-pikafish/Pikafish/releases/download/pikafish-12.2/pikafish-linux-sse41-popcnt.zip && \
-    unzip /tmp/pikafish.zip -d /app/Engines/ && \
-    chmod +x /app/Engines/pikafish-sse41-popcnt && \
-    mv /app/Engines/pikafish-sse41-popcnt /app/Engines/pikafish && \
-    rm /tmp/pikafish.zip
+# ✅ COPY CẢ 2 FILE
+COPY Engines/pikafish /app/Engines/pikafish
+COPY Engines/pikafish.nnue /app/Engines/pikafish.nnue
 
-# Kiểm tra file
-RUN file /app/Engines/pikafish && \
-    ldd /app/Engines/pikafish || true
+# Set quyền thực thi cho binary
+RUN chmod +x /app/Engines/pikafish
 
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
-
-# Debug: chạy thử engine
-RUN /app/Engines/pikafish --help || echo "Engine test complete"
 
 ENTRYPOINT ["dotnet", "XiangqiApi.dll"]
