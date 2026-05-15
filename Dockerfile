@@ -10,30 +10,32 @@ RUN dotnet publish -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Cài đặt các thư viện cần thiết cho engine (nếu có)
+# ✅ Cài đặt các công cụ cần thiết để debug
 RUN apt-get update && apt-get install -y \
-    libgomp1 \
+    file \
+    binutils \
+    libc6 \
+    libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Tạo thư mục Engines
 RUN mkdir -p /app/Engines
 
-# ✅ COPY CẢ 2 FILE
+# Copy engine
 COPY Engines/pikafish /app/Engines/pikafish
 COPY Engines/pikafish.nnue /app/Engines/pikafish.nnue
 
-# --- BẮT ĐẦU KIỂM TRA ---
+# Set quyền thực thi
+RUN chmod +x /app/Engines/pikafish
 
-# 1. Kiểm tra loại file và kiến trúc
+# --- KIỂM TRA ---
+# 1. Kiểm tra loại file (sau khi đã cài file)
 RUN file /app/Engines/pikafish
 
-# 3. Thử chạy lệnh 'uci' và xem output
-RUN echo "uci" | /app/Engines/pikafish || echo "ERROR: Engine failed to run"
+# 2. Kiểm tra thư viện phụ thuộc
+RUN ldd /app/Engines/pikafish 2>&1 || echo "ldd check done"
 
-# --- KẾT THÚC KIỂM TRA ---
-
-# Set quyền thực thi cho binary
-RUN chmod +x /app/Engines/pikafish
+# 3. Thử chạy UCI (cách đơn giản hơn)
+RUN echo "uci" | /app/Engines/pikafish 2>&1 | head -n 5 || echo "Engine execution failed with exit code: $?"
 
 COPY --from=build /app/publish .
 
