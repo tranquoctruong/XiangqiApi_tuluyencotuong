@@ -75,8 +75,8 @@ public class PikafishService : IDisposable
             }
 
             // Set default options
-            await _engineInput.WriteLineAsync("setoption name Threads value 2");
-            await _engineInput.WriteLineAsync("setoption name Hash value 256");
+            await _engineInput.WriteLineAsync("setoption name Threads value 1");
+            await _engineInput.WriteLineAsync("setoption name Hash value 16");
             await _engineInput.FlushAsync();
 
             _logger.LogInformation("Pikafish engine initialized successfully");
