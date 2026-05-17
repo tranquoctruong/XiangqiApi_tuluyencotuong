@@ -9,18 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 builder.Configuration.AddEnvironmentVariables();
 
-// CORS
-var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ??
-    new[] { "http://localhost:3000", "https://tuluyencotuong.com", "https://*.lovable.app" };
-
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowAnyHeader();
     });
 });
 
@@ -68,7 +63,7 @@ app.UseSwaggerUI(c =>
 
 app.MapGet("/", () => Results.Redirect("/swagger"));
 
-app.UseCors("AllowFrontend");
+app.UseCors("AllowAll");
 
 //app.UseMiddleware<ApiKeyMiddleware>();
 
